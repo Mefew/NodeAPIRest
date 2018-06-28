@@ -76,13 +76,70 @@ router.post('/comerSanduiche', async (req, res) => {
             return res.send({ok: true, fome });
         }
 
-
         return res.status(400).send({error: 'Mundo não encontrado'});
     }catch(err){
         console.log(err);
         return res.status(400).send({error: 'comer sanduiche failed'});
     }
 });
+
+router.post('/comerSanduiche', async (req, res) => {
+    const email = req.body.email;
+
+    try{
+        let user = await User.findOne({"email": email});
+        if(!user){
+            return res.status(400).send({error: 'Usuário não cadastrado'});
+        }
+        let configuracaoMundo = await Mundo.findOne({"email": email});
+        
+        if(configuracaoMundo){
+            let fome = configuracaoMundo.fome;
+            fome = fome - 20;
+
+            if(fome<0)
+                fome=0;
+            console.log("comendo");
+
+            configuracaoMundo.fome = fome;
+            configuracaoMundo.save();
+            return res.send({ok: true, fome });
+        }
+        
+        return res.status(400).send({error: 'Mundo não encontrado'});
+    }catch(err){
+        console.log(err);
+        return res.status(400).send({error: 'comer sanduiche failed'});
+    }
+});
+
+router.post('/mudarTextos', async (req, res) => {
+    const email = req.body.email;
+    const texto = req.body.texto;
+    const titulo = req.body.titulo;
+    try{
+        let user = await User.findOne({"email": email});
+        if(!user){
+            return res.status(400).send({error: 'Usuário não cadastrado'});
+        }
+        let configuracaoMundo = await Mundo.findOne({"email": email});
+        
+        if(configuracaoMundo){
+            configuracaoMundo.texto = texto;
+            configuracaoMundo.titulo = titulo;
+            configuracaoMundo.save();
+            return res.send({ok: true, configuracaoMundo });
+        }
+        
+        return res.status(400).send({error: 'Mundo não encontrado'});
+    }catch(err){
+        console.log(err);
+        return res.status(400).send({error: 'comer sanduiche failed'});
+    }
+});
+
+
+
 
 module.exports = app => app.use("/projects", router);
 
